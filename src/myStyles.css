@@ -1,0 +1,66 @@
+.billyPrimaryButton{
+    background-color: #196FFA;
+    color: white;
+    border: none;
+    font-weight: 700;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.billySecondaryButton{
+    background-color: white;
+    color: #196FFA;
+    border: 0.1rem solid #196FFA;
+    font-weight: 700;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.billyCancelButton{
+    background-color: #EA242E;
+    color: white;
+    border: 0.1rem solid #EA242E;
+    font-weight: 700;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.billyCancelAlternativeButton{
+    background-color: white;
+    color: #EA242E;
+    border: 0.1rem solid #EA242E;
+    font-weight: 700;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.billyGreyText {
+    color: #6F6F6F;
+}
+
+.billyInput{
+    background-color: white;
+    color: #262626;
+    border: 0.1rem solid #D4D4D4;
+    padding-left: 1rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 0.8rem;
+}
+
+.avatar-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 150%; /* Adjust this value for a larger container */
+    overflow: hidden;
+}
+
+.avatar-container img,
+.avatar-container span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}

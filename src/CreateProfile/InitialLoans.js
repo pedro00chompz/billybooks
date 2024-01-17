@@ -1,141 +1,149 @@
 import React, {useEffect, useState} from "react";
-import {auth, fireBaseDB} from "../FirebaseConfig/FirebaseConfig";
-import {collection, doc, getDoc} from "firebase/firestore";
+import {auth, fireBaseDB, useAuth} from "../FirebaseConfig/FirebaseConfig";
+import {collection, doc, getDoc, setDoc} from "firebase/firestore";
+import AddNewLoan from "../Components/AddNewLoan";
+import RemoveShelfFromUsersLibrary from "../Components/RemoveShelfFromUsersLibrary";
+import EndLoan from "../Components/EndLoan";
+import DisplayUserLoanedBooks from "../Components/DisplayUserLoanedBooks";
 
 export default function InitialLoans(props){
 
-    const {handleProgress} = props;
+    const {handleProgress,handleShowAlert,handleComponentSwitch} = props;
 
     /* Handle Progress */
     handleProgress(75);
 
-    /* Find friends */
-    const friendsCollectionRef = collection(fireBaseDB,"friendsList");
-    const [friendsData, setFriendsData] = useState(null);
+    const handleNext = () =>{
+        handleShowAlert({ isError: false, message: 'Loans Done!' });
+        if (handleComponentSwitch) {
+            handleComponentSwitch("AllSet");
+        }
+    }
 
-    useEffect(() => {
-        const fetchFriendsList = async () => {
+    const currentUser = useAuth();
+
+    const loansCollectionRef = collection(fireBaseDB, "loans");
+    const [userLoans, setUserLoans] = useState([]);
+    const [showLoanModal,setShowLoanModal] = useState(false);
+    const [selectedFriend, setSelectedFriend] = useState("");
+    const [selectedBook,setSelectedBook] = useState("");
+    const [showEndLoanModal,setShowEndLoanModal] = useState(false);
+    const [loanId,setLoanId] = useState("");
+    const [temporaryLoans, setTemporaryLoans] = useState([]);
+
+
+    /* Buscar empréstimos */
+
+    const [loansData,setLoansData] = useState(null);
+
+    useEffect(()=>{
+        const loansList = async ()=>{
             const userId = auth.currentUser ? auth.currentUser.uid : null;
 
             try {
-                if (userId) {
-                    const friendsDocRef = doc(friendsCollectionRef, userId);
-                    const friendsDocSnapshot = await getDoc(friendsDocRef);
+                if (userId){
+                    const loansDocRef = doc(loansCollectionRef,userId);
+                    const loansDocSnapshot = await getDoc(loansDocRef);
 
-                    if (friendsDocSnapshot.exists()) {
-                        // Document exists, obtain the friends array or other data
-                        const friendsData = friendsDocSnapshot.data();
-                        console.log("Friends Data:", friendsData);
+                    if (loansDocSnapshot.exists()){
+                        const loansData = loansDocSnapshot.data().loanDetails;
 
-                        // Set friendsData to state
-                        setFriendsData(friendsData);
-                    } else {
-                        console.log("Friends document does not exist for user:", userId);
+                        setUserLoans(loansData);
+
                     }
-                } else {
-                    console.error("User ID is null or undefined.");
                 }
-            } catch (error) {
-                console.error("Error fetching friends document:", error);
+            } catch (error){
+                console.error(error);
             }
+        }
+        loansList();
+    }, [showLoanModal, temporaryLoans]);
+
+    console.log("empréstimos do user: ",userLoans);
+
+    /* modal de adicionar loan */
+
+    const openShowModal = () => {
+        setShowLoanModal(true);
+        console.log("mostrar modal? ",showLoanModal);
+    };
+
+    const cancelModal = () =>{
+        setShowLoanModal(false);
+    }
+
+    /* modal de acabar com loans */
+
+    const showEndModal = (loan) => {
+        setShowEndLoanModal(true);
+        console.log("mostrar modal de acabar? ", showEndLoanModal);
+        // Pass the loan information to the EndLoan component
+        setSelectedBook(loan.bookInfo);
+        setSelectedFriend(loan.friendInfo);
+        setLoanId(loan.loanId);
+    };
+
+    const cancelEndModal = () =>{
+        setShowEndLoanModal(false);
+    }
+
+
+    /* Get random color combination */
+    const generateRandomColor = () => {
+        const colorsArray = [
+            ["#196FFA", "#D1E2FE"],
+            ["#70163C", "#FFBDD9"],
+            ["#FAB019", "#FEEFD1"],
+            ["#E03616", "#FFCBC2"],
+            ["#21D775", "#BDFFDB"],
+            ["#D77821", "#FFE5CE"],
+            ["#9F32F4", "#EAD0FF"],
+            ["#42E3C6", "#DDFFF9"],
+            ["#E342CA", "#FFD0F8"],
+        ];
+
+        const randomNumber = Math.floor(Math.random() * colorsArray.length);
+
+        return {
+            backgroundColor: colorsArray[randomNumber][0],
+            color: colorsArray[randomNumber][1],
         };
+    };
 
-        fetchFriendsList();
-    }, []);
 
-    console.log(friendsData);
+    const handleLoanRemoved = (updatedLoansData) => {
+        setTemporaryLoans(updatedLoansData);
+    };
 
-    /* */
-
-    const usersCollectionRef = collection(fireBaseDB, "users");
-
-    const [selectedFriend, setSelectedFriend] = useState("");
-    const [friendDetails, setFriendDetails] = useState([]);
-
-    useEffect(() => {
-        const fetchFriendsInfo = async () => {
-            try {
-                if (friendsData) {
-                    // Use Promise.all to fetch user data for all friends concurrently
-                    const friendsPromises = friendsData.friends.map(async (friendId) => {
-                        const userDocRef = doc(usersCollectionRef, friendId);
-                        const userDocSnapshot = await getDoc(userDocRef);
-
-                        if (userDocSnapshot.exists()) {
-                            // Document exists, obtain the user data
-                            const userData = userDocSnapshot.data();
-                            console.log("User Data:", userData);
-                            return { id: friendId, ...userData }; // Include friendId for reference
-                        } else {
-                            console.log("User document does not exist for user:", friendId);
-                            return null;
-                        }
-                    });
-
-                    // Wait for all promises to resolve
-                    const friendsInfo = await Promise.all(friendsPromises);
-
-                    console.log("Friends Info:", friendsInfo);
-                    setFriendDetails(friendsInfo.filter(Boolean)); // Filter out null values
-                } else {
-                    console.error("No Friends to Show");
-                }
-            } catch (error) {
-                console.error("Error fetching friends document:", error);
-            }
-        };
-
-        fetchFriendsInfo();
-    }, [friendsData]);
-
-    console.log("detalhes",friendDetails);
-
-    /* Buscar livros */
-
-    const librariesCollectionRef = collection(fireBaseDB, "libraries");
-
-    const [userLibrary, setUserLibrary] = useState(null);
-
-    useEffect(() => {
-        const fetchUserLibrary = async () => {
-            try {
-                const userId = auth.currentUser ? auth.currentUser.uid : null;
-
-                if (userId) {
-                    const userLibraryDocRef = doc(librariesCollectionRef, userId);
-                    const userLibraryDocSnapshot = await getDoc(userLibraryDocRef);
-
-                    if (userLibraryDocSnapshot.exists()) {
-                        // Document exists, obtain the user's library data
-                        const userLibraryData = userLibraryDocSnapshot.data();
-                        console.log("User Library Data:", userLibraryData);
-
-                        // Set userLibrary to state
-                        setUserLibrary(userLibraryData);
-                    } else {
-                        console.log("User's library document does not exist for user:", userId);
-                    }
-                } else {
-                    console.error("User ID is null or undefined.");
-                }
-            } catch (error) {
-                console.error("Error fetching user's library document:", error);
-            }
-        };
-
-        fetchUserLibrary();
-    }, []);
-
-    console.log(userLibrary);
-
-    const [selectedBook,setSelectedBook] = useState("");
-
-    console.log("amigo selec:",selectedFriend);
-    console.log("livro selec:",selectedBook);
-
+    const handleBack = () =>{
+        handleShowAlert({ isError: false, message: 'Books Added!' });
+        if (handleComponentSwitch) {
+            handleComponentSwitch("FindFriends");
+        }
+    }
 
     return(
         <>
+            {showLoanModal && (
+                <>
+                    <AddNewLoan
+                        show={showLoanModal}
+                        cancelModal = {cancelModal}
+                    />
+                </>
+            )}
+            {showEndLoanModal && (
+                <>
+                    <EndLoan
+                        loanId={loanId}
+                        selectedBook={selectedBook}
+                        selectedFriend={selectedFriend}
+                        showEndModal={showEndModal}
+                        cancelEndModal = {cancelEndModal}
+                        onLoanRemoved={handleLoanRemoved}
+                    />
+                </>
+            )}
             <div className="row align-items-center" style={{ marginTop: "2rem" }}>
                 <div className="col-10 mx-auto titleFont" style={{ fontSize: "1.8rem", textAlign: "left" }}>
                     Keep Track of Your Books
@@ -143,86 +151,33 @@ export default function InitialLoans(props){
                 <div className="col-10 mx-auto billyGreyText" style={{ fontWeight: "600", textAlign: "left", marginBottom: "2rem" }}>
                     If you have loaned books to your friends, you can easily keep track of them with Billy Books!
                 </div>
-                <form className="col-10 mx-auto">
-                    <div className="form-group text-start">
-                        <label htmlFor="choose a friend" style={{ marginTop: "1rem", marginBottom: "0.5rem", display: "block", fontSize: "0.9rem", fontWeight: "600" }}>
-                            Choose a Friend
-                        </label>
-                        <select
-                            style={{ marginRight: "1rem" }}
-                            className="billyInput rounded col-12"
-                            id="friend"
-                            value={selectedFriend}
-                            onChange={(e) => setSelectedFriend(e.target.value)}
-                        >
-                            <option value="" disabled>Select your Friend</option>
-                            {friendDetails.map((friend) => (
-                                <option key={friend.id} value={friend.id}>
-                                    {friend.name} {friend.surname}
-                                </option>
-                            ))}
-                            <option value="Guest">Guest</option>
-                        </select>
-                        <div
-                            onClick={(e) => setSelectedFriend("Guest")}
-                            className="text-decoration-underline"
-                            style={{ fontSize: "0.8rem", fontWeight: "600", marginTop: "1rem", color: "#196FFA", cursor: "pointer" }}>
-                            Borrower doesn't have an account? Add Guest
-                        </div>
-                    </div>
-                    <div className="form-group text-start">
-                        <label htmlFor="choose a book" style={{ marginTop: "1rem", marginBottom: "0.5rem", display: "block", fontSize: "0.9rem", fontWeight: "600" }}>
-                            Choose a Book
-                        </label>
-                        <select
-                            style={{ marginRight: "1rem" }}
-                            className="billyInput rounded col-12"
-                            id="book"
-                            value={selectedBook}
-                            onChange={(e) => setSelectedBook(e.target.value)}
-                        >
-                            <option value="" disabled>Select a Book to Loan</option>
-                            {Object.keys(userLibrary?.Read?.books || {}).map((bookId) => {
-                                const book = userLibrary.Read.books[bookId];
-                                return (
-                                    <option key={bookId} value={bookId}>
-                                        {book.title}
-                                    </option>
-                                );
-                            })}
-                        </select>
-                    </div>
-                    <div className="text-start">
-                        <div style={{ marginTop: "1rem", marginBottom: "0.5rem", display: "block", fontSize: "0.9rem", fontWeight: "600" }}>
-                            Loan Data
-                        </div>
-                        <div className="row">
-                            <div className="col-6">
-                                {selectedFriend ? ( // se amigo seleciona vai mostrar foto e nome
-                                    <>
-                                        {/* ... Your existing code ... */}
-                                    </>
-                                ) : (
-                                    <>
+                <div className="col-10 mx-auto">
+                    <h1 className="text-start titleFont" style={{fontSize:"1rem"}}>Your Loans</h1>
 
-                                    </>
-                                    )}
-                            </div>
-                            <div className="col-6">
-                                {selectedBook ? ( // se amigo seleciona vai mostrar foto e nome
-                                    <>
-                                        {/* ... Your existing code ... */}
-                                    </>
-                                ) : (
-                                    <>
+                    <DisplayUserLoanedBooks
+                        userLoans={userLoans}
+                        generateRandomColor={generateRandomColor}
+                        showEndModal={showEndModal}
+                    />
 
-                                    </>
-                                )}
-                            </div>
-                        </div>
+                    <button
+                    className="rounded-pill w-100 billySecondaryButton"
+                    style={{ fontSize: "0.8rem", fontWeight: "700", marginBottom:"2rem", marginTop:"2rem"}}
+                    onClick={openShowModal}
+                >
+                    Add new loan
+                </button>
+                <button
+                    className="rounded-pill w-100 billyPrimaryButton"
+                    style={{ fontSize: "0.8rem"}}
+                    onClick={handleNext}
+                >
+                    Continue
+                </button>
+                    <div onClick={handleBack} className="text-center text-decoration-underline" style={{fontSize:"0.8rem",fontWeight:"600",color:"#196FFA", marginTop:"1rem",cursor:"pointer",marginBottom:"2rem"}}>
+                        Back
                     </div>
-
-                </form>
+                </div>
             </div>
         </>
     )

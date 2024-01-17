@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.titleFont {
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 700;
+}
+
+
