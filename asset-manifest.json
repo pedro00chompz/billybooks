@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/billybooks/static/css/main.dd7a13bc.css",
-    "main.js": "/billybooks/static/js/main.531bde6d.js",
+    "main.js": "/billybooks/static/js/main.8d7ddab4.js",
     "static/js/787.a9a9f40a.chunk.js": "/billybooks/static/js/787.a9a9f40a.chunk.js",
     "index.html": "/billybooks/index.html",
     "main.dd7a13bc.css.map": "/billybooks/static/css/main.dd7a13bc.css.map",
-    "main.531bde6d.js.map": "/billybooks/static/js/main.531bde6d.js.map",
+    "main.8d7ddab4.js.map": "/billybooks/static/js/main.8d7ddab4.js.map",
     "787.a9a9f40a.chunk.js.map": "/billybooks/static/js/787.a9a9f40a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.dd7a13bc.css",
-    "static/js/main.531bde6d.js"
+    "static/js/main.8d7ddab4.js"
   ]
 }
