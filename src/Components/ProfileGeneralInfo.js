@@ -133,8 +133,8 @@ export default function ProfileGeneralInfo(props) {
                                 fontSize:"1.5rem",
                             }}
                         >
-                    {user.name.charAt(0).toUpperCase()}
-                            {user.surname.charAt(0).toUpperCase()}
+                    {user?.name?.charAt(0).toUpperCase()}
+                            {user?.surname?.charAt(0).toUpperCase()}
                 </span>
                     )}
                 </div>

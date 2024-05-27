@@ -19,6 +19,7 @@ export default function NavBar(props) {
     const navigate = useNavigate();
 
 
+
     useEffect(() => {
         // Update color based on menuOpen state
         setMenuColor(menuOpen ? "#196FFA" : "#262626");
@@ -26,7 +27,7 @@ export default function NavBar(props) {
 
 
 
-    console.log(userInfo);
+    console.log("info",userInfo);
 
     /* avatar */
 
@@ -54,6 +55,12 @@ export default function NavBar(props) {
             );
         } else {
             // If the user doesn't have an avatar, render the default rounded div
+            console.log(userInfo); // Check the entire friend object
+            console.log(userInfo?.name); // Check the name property
+
+            const firstNameInitial = userInfo?.name ? userInfo?.name.charAt(0).toUpperCase() : '';
+            const surnameInitial = userInfo?.surname ? userInfo?.surname.charAt(0).toUpperCase() : '';
+
             return (
                 <div
                     className="titleFont"
@@ -70,7 +77,8 @@ export default function NavBar(props) {
                     }}
                     onClick={()=>handleOptionClick("MyProfile")}
                 >
-                    {userInfo?.name.charAt(0).toUpperCase()}{userInfo?.surname.charAt(0).toUpperCase()}
+                    {firstNameInitial}
+                    {surnameInitial}
                 </div>
             );
         }

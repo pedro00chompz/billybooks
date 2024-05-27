@@ -112,13 +112,19 @@ export default function DisplayUserCurrentFriends(props) {
             <div>
                 {friends?.map((friend) => {
                     const { backgroundColor, color } = generateRandomColor();
-                    return(
+                    console.log(friend); // Check the entire friend object
+                    console.log(friend?.data); // Check the data property
+                    console.log(friend?.data.name); // Check the name property
 
-                        <div className="row" key={friend.id} style={{marginBottom:"1rem"}}>
-                            <div className="col-4" onClick={()=>handleFriendClick(friend?.data)}>
+                    const firstNameInitial = friend?.data.name ? friend.data.name.charAt(0).toUpperCase() : '';
+                    const surnameInitial = friend?.data.surname ? friend.data.surname.charAt(0).toUpperCase() : '';
+
+                    return (
+                        <div className="row" key={friend.id} style={{ marginBottom: "1rem" }}>
+                            <div className="col-4" onClick={() => handleFriendClick(friend?.data)}>
                                 {friend.data.avatar ? (
-                                    <img src={friend.data.avatar} className="img-fluid" style={{borderRadius:"50%",height:"3rem",width:"3rem", display: "inline-block"}}/>
-                                ): (
+                                    <img src={friend.data.avatar} className="img-fluid" style={{ borderRadius: "50%", height: "3rem", width: "3rem", display: "inline-block" }} />
+                                ) : (
                                     <span
                                         className="titleFont"
                                         style={{
@@ -132,30 +138,30 @@ export default function DisplayUserCurrentFriends(props) {
                                             justifyContent: "center",  // Center horizontally
                                         }}
                                     >
-                                        {friend.data.name.charAt(0).toUpperCase()}
-                                        {friend.data.surname.charAt(0).toUpperCase()}
-                                    </span>
+                                {firstNameInitial}
+                                        {surnameInitial}
+                            </span>
                                 )}
                             </div>
-                            <div className="col-6 ps-0 pe-0" onClick={()=>handleFriendClick(friend?.data)}>
-                                <div className="row" style={{fontSize:"0.8rem",fontWeight:"600"}}>
+                            <div className="col-6 ps-0 pe-0" onClick={() => handleFriendClick(friend?.data)}>
+                                <div className="row" style={{ fontSize: "0.8rem", fontWeight: "600" }}>
                                     {friend.data.name} {friend.data.surname}
                                 </div>
-                                <div className="row billyGreyText" style={{fontSize:"0.8rem",fontWeight:"400"}}>
+                                <div className="row billyGreyText" style={{ fontSize: "0.8rem", fontWeight: "400" }}>
                                     {formatDate(friend.data.accountCreationDate)}
                                 </div>
                             </div>
                             <div className="col-2 ps-0 text-start d-flex">
                                 <FontAwesomeIcon icon={faUserMinus}
-                                                 style={{ height: "1rem", width: "auto",display: "inline-flex",alignItems: "center",justifyContent: "center",color:"#EA242E"}}
+                                                 style={{ height: "1rem", width: "auto", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#EA242E" }}
                                                  onClick={() => handleRemoveFriendModal(friend.data)}
-
                                 />
                             </div>
                         </div>
-                    )
+                    );
                 })}
             </div>
         </>
+
     );
 }

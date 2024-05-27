@@ -11,7 +11,7 @@ function App() {
 
   return (
     <div className="App" style={{fontFamily:'Open Sans'}}>
-        <BrowserRouter>
+        <BrowserRouter basename="/billybooks">
             <Routes>
                 <Route path="/" element={<SplashScreen/>}/>
                 <Route path="/auth" element={<Auth />} />
